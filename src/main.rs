@@ -8,6 +8,8 @@ mod window;
 use framebuffer::{Color, Framebuffer};
 use geometry::vec2i;
 
+use crate::draw::Line;
+
 const WHITE: Color = Color::rgb(255, 255, 255);
 #[allow(dead_code)]
 const GREEN: Color = Color::rgb(0, 255, 0);
@@ -26,11 +28,14 @@ fn main() -> Result<(), minifb::Error> {
     let a = vec2i(7, 3);
     let b = vec2i(12, 37);
     let c = vec2i(62, 53);
-
-    draw::line(a, b, &mut framebuffer, RED);
-    draw::line(a, c, &mut framebuffer, BLUE);
-    draw::line(b, c, &mut framebuffer, GREEN);
-    draw::line(b, c, &mut framebuffer, YELLOW);
+    
+    let ab = Line::new(a, b);
+    let bc = Line::new(b, c);
+    let ac = Line::new(a, c);
+    
+    ab.draw(&mut framebuffer, RED);
+    bc.draw(&mut framebuffer, BLUE);
+    ac.draw(&mut framebuffer, GREEN);
 
     for v in [a, b, c] {
         framebuffer.set(v.x, v.y, WHITE);
