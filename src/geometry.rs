@@ -95,7 +95,11 @@ impl Vec3f {
     /// Returns the zero vector if `self` has no length, rather than NaNs.
     pub fn normalized(self) -> Vec3f {
         let len = self.length();
-        if len == 0.0 { Vec3f::ZERO } else { self * (1.0 / len) }
+        if len == 0.0 {
+            Vec3f::ZERO
+        } else {
+            self * (1.0 / len)
+        }
     }
 
     /// Drop z. Rounds rather than truncates, so screen-space positions land on

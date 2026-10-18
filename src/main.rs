@@ -8,6 +8,8 @@ mod window;
 use framebuffer::{Color, Framebuffer};
 use geometry::vec2i;
 
+use crate::draw::{Drawable, Triangle};
+
 const WHITE: Color = Color::rgb(255, 255, 255);
 #[allow(dead_code)]
 const GREEN: Color = Color::rgb(0, 255, 0);
@@ -19,22 +21,27 @@ const BLUE: Color = Color::rgb(64, 128, 255);
 const YELLOW: Color = Color::rgb(255, 200, 0);
 
 fn main() -> Result<(), minifb::Error> {
-    const WIDTH: usize = 64;
-    const HEIGHT: usize = 64;
+    const WIDTH: usize = 150;
+    const HEIGHT: usize = 150;
     let mut framebuffer = Framebuffer::new(WIDTH, HEIGHT);
 
-    let a = vec2i(7, 3);
-    let b = vec2i(12, 37);
-    let c = vec2i(62, 53);
-
-    draw::line(a, b, &mut framebuffer, RED);
-    draw::line(a, c, &mut framebuffer, BLUE);
-    draw::line(b, c, &mut framebuffer, GREEN);
-    draw::line(b, c, &mut framebuffer, YELLOW);
-
-    for v in [a, b, c] {
-        framebuffer.set(v.x, v.y, WHITE);
-    }
+    [
+        (
+            Triangle::new(vec2i(40, 50), vec2i(35, 70), vec2i(45, 70)),
+            RED,
+        ),
+        (
+            Triangle::new(vec2i(120, 35), vec2i(90, 5), vec2i(45, 110)),
+            WHITE,
+        ),
+        (
+            Triangle::new(vec2i(115, 83), vec2i(80, 90), vec2i(85, 120)),
+            GREEN,
+        ),
+    ]
+    .into_iter()
+    .filter_map(|(triangle, color)| triangle.map(|t| (t, color)))
+    .for_each(|(triangle, color)| triangle.draw(&mut framebuffer, color));
 
     window::show(&framebuffer, "tinyrenderer")
 }
