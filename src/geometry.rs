@@ -40,7 +40,7 @@ impl Barycentric {
 }
 
 /// Segment between two pixel coordinates, both endpoints included.
-#[allow(dead_code)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Line {
     pub a: Vec2i,
     pub b: Vec2i,
@@ -104,7 +104,6 @@ impl Triangle {
 }
 
 impl Line {
-    #[allow(dead_code)]
     pub const fn new(a: Vec2i, b: Vec2i) -> Self {
         Self { a, b }
     }

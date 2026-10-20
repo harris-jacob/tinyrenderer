@@ -75,7 +75,7 @@ impl Model {
     }
 
     /// Each face's three vertex positions.
-    pub fn faces(&self) -> impl Iterator<Item = [Vec3f; 3]> + '_ {
+    pub fn faces(&self) -> impl ExactSizeIterator<Item = [Vec3f; 3]> + '_ {
         self.faces.iter().map(|face| face.map(|i| self.vertices[i]))
     }
 }

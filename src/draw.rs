@@ -32,3 +32,15 @@ impl Drawable for Line {
         }
     }
 }
+
+/// Draws a triangle's edges instead of filling it.
+pub struct Wireframe(pub Triangle);
+
+impl Drawable for Wireframe {
+    fn draw(&self, buffer: &mut Framebuffer, color: Color) {
+        self.0
+            .edges()
+            .into_iter()
+            .for_each(|edge| edge.draw(buffer, color));
+    }
+}
