@@ -1,5 +1,5 @@
 use crate::framebuffer::{Color, Framebuffer};
-use crate::geometry::{Line, Triangle, Vec2i};
+use crate::geometry::{Line, Triangle};
 
 pub trait Drawable {
     fn draw(&self, buffer: &mut Framebuffer, color: Color);
@@ -7,17 +7,10 @@ pub trait Drawable {
 
 impl Drawable for Triangle {
     fn draw(&self, buffer: &mut Framebuffer, color: Color) {
-        let bounding_box = self.bounding_box();
-
-        for y in bounding_box.min.y..=bounding_box.max.y {
-            for x in bounding_box.min.x..=bounding_box.max.x {
-                let barycentric = self.barycentric(Vec2i::new(x, y));
-
-                if barycentric.is_inside() {
-                    buffer.set(x, y, color);
-                }
-            }
-        }
+        self.bounding_box()
+            .points()
+            .filter(|&p| self.barycentric(p).is_inside())
+            .for_each(|p| buffer.set(p.x, p.y, color));
     }
 }
 

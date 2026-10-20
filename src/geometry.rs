@@ -17,15 +17,18 @@ pub struct AABoundingBox {
 /// Barycentric coordinates of a point relative to a triangle ABC: the weights
 /// in P = αA + βB + γC. They always sum to 1, and are only built by
 /// [`Triangle::barycentric`].
-///
-/// Stored as (α, β, γ) in x, y, z. The vector is private because its
-/// arithmetic would not preserve the sum.
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Barycentric(Vec3f);
 
 impl AABoundingBox {
     pub const fn new(min: Vec2i, max: Vec2i) -> Self {
         Self { min, max }
+    }
+
+    /// Every pixel coordinate in the box, row by row.
+    pub fn points(&self) -> impl Iterator<Item = Vec2i> + use<> {
+        let (min, max) = (self.min, self.max);
+        (min.y..=max.y).flat_map(move |y| (min.x..=max.x).map(move |x| Vec2i::new(x, y)))
     }
 }
 
@@ -55,35 +58,25 @@ impl Triangle {
     pub fn new(a: Vec2i, b: Vec2i, c: Vec2i) -> Option<Self> {
         let triangle = Self { a, b, c };
 
-        if triangle.area() == 0.0 {
+        if triangle.doubled_signed_area() == 0 {
             None
         } else {
             Some(triangle)
         }
     }
 
-    /// Positive when a → b → c runs counter-clockwise (y up). Never zero.
-    pub fn signed_area(&self) -> f32 {
-        let ab = self.b - self.a;
-        let ac = self.c - self.a;
-
-        ab.cross(ac) as f32 / 2.0
+    /// Twice the signed area, exact. Positive when a → b → c runs
+    /// counter-clockwise (y up). Never zero.
+    pub fn doubled_signed_area(&self) -> i32 {
+        (self.b - self.a).cross(self.c - self.a)
     }
 
-    pub fn area(&self) -> f32 {
-        self.signed_area().abs()
-    }
-
-    /// Each weight is the signed area of the triangle with `p` in place of that
-    /// weight's vertex, over the signed area of the whole. Both areas share a
-    /// winding, so the result does not depend on the order of a, b, c.
+    /// /// Position of `p` in barycentric coordinates relative to this triangle: the
+    /// weights (α, β, γ) with p = αa + βb + γc.
     pub fn barycentric(&self, p: Vec2i) -> Barycentric {
-        // Sub-areas cross consecutive edges, equal to (b − p) × (c − p) and
-        // (p − a) × (c − a).
-        let abc = self.signed_area();
-        let pbc = (self.b - p).cross(self.c - self.b) as f32 / 2.0;
-
-        let apc = (p - self.a).cross(self.c - p) as f32 / 2.0;
+        let abc = self.doubled_signed_area() as f32;
+        let pbc = (self.b - p).cross(self.c - self.b) as f32;
+        let apc = (p - self.a).cross(self.c - p) as f32;
 
         let alpha = pbc / abc;
         let beta = apc / abc;
@@ -112,8 +105,9 @@ impl Vec2i {
         Self { x, y }
     }
 
-    // Not a true cross, 2d equivalent if points placed
-    // on a plane at z=0;
+    /// 2D cross product: the z component of the 3D cross product with both
+    /// vectors on the z = 0 plane. Equals twice the signed area of the
+    /// triangle (0, self, rhs).
     pub fn cross(self, rhs: Vec2i) -> i32 {
         self.x * rhs.y - self.y * rhs.x
     }
