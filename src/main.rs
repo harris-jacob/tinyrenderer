@@ -1,39 +1,31 @@
 mod draw;
 mod framebuffer;
 mod geometry;
+mod model;
+mod render;
+mod viewport;
 mod window;
 
-use framebuffer::{Color, Framebuffer};
-use geometry::Vec2i;
+use framebuffer::Framebuffer;
+use model::Model;
+use render::{Style, render};
 
-use crate::{draw::Drawable, geometry::Triangle};
+const HEAD_MODEL: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/obj/african_head.obj");
+const WIDTH: usize = 600;
+const HEIGHT: usize = 600;
 
-const WHITE: Color = Color::rgb(255, 255, 255);
-const GREEN: Color = Color::rgb(0, 255, 0);
-const RED: Color = Color::rgb(255, 0, 0);
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let model = Model::from_obj(HEAD_MODEL)?;
+    println!(
+        "loaded {} vertices, {} faces",
+        model.vertices().len(),
+        model.faces().len()
+    );
 
-fn main() -> Result<(), minifb::Error> {
-    const WIDTH: usize = 150;
-    const HEIGHT: usize = 150;
-    let mut framebuffer = Framebuffer::new(WIDTH, HEIGHT);
+    let mut buffer = Framebuffer::new(WIDTH, HEIGHT);
+    render(&model, &mut buffer, Style::Filled);
+    render(&model, &mut buffer, Style::Wireframe);
 
-    [
-        (
-            Triangle::new(Vec2i::new(40, 50), Vec2i::new(35, 70), Vec2i::new(45, 70)),
-            RED,
-        ),
-        (
-            Triangle::new(Vec2i::new(120, 35), Vec2i::new(90, 5), Vec2i::new(45, 110)),
-            WHITE,
-        ),
-        (
-            Triangle::new(Vec2i::new(115, 83), Vec2i::new(80, 90), Vec2i::new(85, 120)),
-            GREEN,
-        ),
-    ]
-    .into_iter()
-    .filter_map(|(triangle, color)| triangle.map(|t| (t, color)))
-    .for_each(|(triangle, color)| triangle.draw(&mut framebuffer, color));
-
-    window::show(&framebuffer, "tinyrenderer")
+    window::show(&buffer, "tinyrenderer")?;
+    Ok(())
 }

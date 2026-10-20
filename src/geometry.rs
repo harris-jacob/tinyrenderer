@@ -40,7 +40,7 @@ impl Barycentric {
 }
 
 /// Segment between two pixel coordinates, both endpoints included.
-#[allow(dead_code)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Line {
     pub a: Vec2i,
     pub b: Vec2i,
@@ -63,6 +63,16 @@ impl Triangle {
         } else {
             Some(triangle)
         }
+    }
+
+    /// The three sides, each running in the triangle's winding order:
+    /// a → b, b → c, c → a.
+    pub fn edges(&self) -> [Line; 3] {
+        [
+            Line::new(self.a, self.b),
+            Line::new(self.b, self.c),
+            Line::new(self.c, self.a),
+        ]
     }
 
     /// Twice the signed area, exact. Positive when a → b → c runs
@@ -94,7 +104,6 @@ impl Triangle {
 }
 
 impl Line {
-    #[allow(dead_code)]
     pub const fn new(a: Vec2i, b: Vec2i) -> Self {
         Self { a, b }
     }
