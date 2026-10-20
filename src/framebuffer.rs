@@ -1,3 +1,7 @@
+use std::hash::{BuildHasher, Hasher, RandomState};
+
+use crate::viewport::Viewport;
+
 /// A single pixel.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub struct Color {
@@ -9,6 +13,13 @@ pub struct Color {
 impl Color {
     pub const fn rgb(r: u8, g: u8, b: u8) -> Self {
         Color { r, g, b }
+    }
+
+    /// A different colour on each call. Draws its bits from std's randomly
+    /// seeded hasher, which is fine for debug colours but not real randomness.
+    pub fn random() -> Self {
+        let bits = RandomState::new().build_hasher().finish();
+        Color::rgb(bits as u8, (bits >> 8) as u8, (bits >> 16) as u8)
     }
 
     /// Packed as 0RGB, the layout minifb expects.
@@ -39,6 +50,11 @@ impl Framebuffer {
             height,
             pixels: vec![0; width * height],
         }
+    }
+
+    /// A viewport covering this framebuffer.
+    pub fn viewport(&self) -> Viewport {
+        Viewport::new(self.width, self.height)
     }
 
     pub fn width(&self) -> i32 {

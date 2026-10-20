@@ -65,6 +65,16 @@ impl Triangle {
         }
     }
 
+    /// The three sides, each running in the triangle's winding order:
+    /// a → b, b → c, c → a.
+    pub fn edges(&self) -> [Line; 3] {
+        [
+            Line::new(self.a, self.b),
+            Line::new(self.b, self.c),
+            Line::new(self.c, self.a),
+        ]
+    }
+
     /// Twice the signed area, exact. Positive when a → b → c runs
     /// counter-clockwise (y up). Never zero.
     pub fn doubled_signed_area(&self) -> i32 {

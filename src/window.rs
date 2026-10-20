@@ -7,7 +7,7 @@ use crate::framebuffer::Framebuffer;
 pub fn show(image: &Framebuffer, title: &str) -> Result<(), minifb::Error> {
     let options = WindowOptions {
         resize: true,
-        scale: Scale::X8,
+        scale: Scale::X1,
         scale_mode: ScaleMode::AspectRatioStretch,
         ..WindowOptions::default()
     };
