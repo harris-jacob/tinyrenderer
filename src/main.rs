@@ -1,24 +1,16 @@
 mod draw;
 mod framebuffer;
-// Vector helpers land ahead of the code that needs them.
-#[allow(dead_code)]
 mod geometry;
 mod window;
 
 use framebuffer::{Color, Framebuffer};
-use geometry::vec2i;
+use geometry::Vec2i;
 
-use crate::draw::{Drawable, Triangle};
+use crate::{draw::Drawable, geometry::Triangle};
 
 const WHITE: Color = Color::rgb(255, 255, 255);
-#[allow(dead_code)]
 const GREEN: Color = Color::rgb(0, 255, 0);
-#[allow(dead_code)]
 const RED: Color = Color::rgb(255, 0, 0);
-#[allow(dead_code)]
-const BLUE: Color = Color::rgb(64, 128, 255);
-#[allow(dead_code)]
-const YELLOW: Color = Color::rgb(255, 200, 0);
 
 fn main() -> Result<(), minifb::Error> {
     const WIDTH: usize = 150;
@@ -27,15 +19,15 @@ fn main() -> Result<(), minifb::Error> {
 
     [
         (
-            Triangle::new(vec2i(40, 50), vec2i(35, 70), vec2i(45, 70)),
+            Triangle::new(Vec2i::new(40, 50), Vec2i::new(35, 70), Vec2i::new(45, 70)),
             RED,
         ),
         (
-            Triangle::new(vec2i(120, 35), vec2i(90, 5), vec2i(45, 110)),
+            Triangle::new(Vec2i::new(120, 35), Vec2i::new(90, 5), Vec2i::new(45, 110)),
             WHITE,
         ),
         (
-            Triangle::new(vec2i(115, 83), vec2i(80, 90), vec2i(85, 120)),
+            Triangle::new(Vec2i::new(115, 83), Vec2i::new(80, 90), Vec2i::new(85, 120)),
             GREEN,
         ),
     ]

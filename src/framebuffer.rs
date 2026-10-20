@@ -16,6 +16,7 @@ impl Color {
         (self.r as u32) << 16 | (self.g as u32) << 8 | self.b as u32
     }
 
+    #[allow(dead_code)]
     const fn from_packed(p: u32) -> Self {
         Color::rgb((p >> 16) as u8, (p >> 8) as u8, p as u8)
     }
@@ -49,6 +50,7 @@ impl Framebuffer {
     }
 
     /// Out-of-bounds reads return black, out-of-bounds writes are ignored.
+    #[allow(dead_code)]
     pub fn get(&self, x: i32, y: i32) -> Color {
         match self.index(x, y) {
             Some(i) => Color::from_packed(self.pixels[i]),
@@ -62,6 +64,7 @@ impl Framebuffer {
         }
     }
 
+    #[allow(dead_code)]
     pub fn clear(&mut self, c: Color) {
         self.pixels.fill(c.to_packed());
     }
