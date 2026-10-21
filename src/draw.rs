@@ -10,7 +10,11 @@ impl Drawable for Triangle {
         self.bounding_box()
             .points()
             .filter(|&p| self.barycentric(p).is_inside())
-            .for_each(|p| buffer.set(p.x, p.y, color));
+            .for_each(|p| {
+                let depth = self.barycentric(p).interpolate(self.depth);
+                // buffer.set(p.x, p.y, color);
+                buffer.set_if_closer(p.x, p.y, depth, color)
+            });
     }
 }
 

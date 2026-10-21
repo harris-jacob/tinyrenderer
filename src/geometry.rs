@@ -37,6 +37,11 @@ impl Barycentric {
         let Barycentric(w) = self;
         w.x >= 0.0 && w.y >= 0.0 && w.z >= 0.0
     }
+
+    // αA + βB + γC interpolation for one value per vertex.
+    pub fn interpolate(&self, values: Vec3f) -> f32 {
+        self.0.x * values.x + self.0.y * values.y + self.0.z * values.z
+    }
 }
 
 /// Segment between two pixel coordinates, both endpoints included.
@@ -51,12 +56,13 @@ pub struct Triangle {
     a: Vec2i,
     b: Vec2i,
     c: Vec2i,
+    pub depth: Vec3f,
 }
 
 impl Triangle {
     /// Returns `None` when the vertices are collinear (zero area).
-    pub fn new(a: Vec2i, b: Vec2i, c: Vec2i) -> Option<Self> {
-        let triangle = Self { a, b, c };
+    pub fn new(a: Vec2i, b: Vec2i, c: Vec2i, depth: Vec3f) -> Option<Self> {
+        let triangle = Self { a, b, c, depth };
 
         if triangle.doubled_signed_area() == 0 {
             None

@@ -41,6 +41,7 @@ pub struct Framebuffer {
     width: usize,
     height: usize,
     pixels: Vec<u32>,
+    zbuffer: Vec<f32>,
 }
 
 impl Framebuffer {
@@ -49,6 +50,7 @@ impl Framebuffer {
             width,
             height,
             pixels: vec![0; width * height],
+            zbuffer: vec![f32::MIN; width * height],
         }
     }
 
@@ -77,6 +79,17 @@ impl Framebuffer {
     pub fn set(&mut self, x: i32, y: i32, c: Color) {
         if let Some(i) = self.index(x, y) {
             self.pixels[i] = c.to_packed();
+        }
+    }
+
+    // Conditional set only if z depth is greater than what's already
+    // in this pixel position in the z buffer.
+    pub fn set_if_closer(&mut self, x: i32, y: i32, z: f32, c: Color) {
+        if let Some(i) = self.index(x, y) {
+            if z > self.zbuffer[i] {
+                self.zbuffer[i] = z;
+                self.set(x, y, c);
+            }
         }
     }
 

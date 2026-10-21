@@ -18,7 +18,7 @@ impl Viewport {
     /// None when the face collapses to collinear pixels, e.g. seen edge-on.
     pub fn project(&self, face: [Vec3f; 3]) -> Option<Triangle> {
         let [a, b, c] = face.map(|v| self.to_screen(v).to_vec2i());
-        Triangle::new(a, b, c)
+        Triangle::new(a, b, c, Vec3f::new(face[0].z, face[1].z, face[2].z))
     }
 
     /// Shifts [−1, 1] to [0, 2], then scales to the pixel range. z passes
