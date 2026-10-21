@@ -38,9 +38,9 @@ impl Barycentric {
         w.x >= 0.0 && w.y >= 0.0 && w.z >= 0.0
     }
 
-    // αA + βB + γC interpolation for one value per vertex.
+    /// α·a + β·b + γ·c for one value per vertex, packed as (a, b, c).
     pub fn interpolate(&self, values: Vec3f) -> f32 {
-        self.0.x * values.x + self.0.y * values.y + self.0.z * values.z
+        self.0.dot(values)
     }
 }
 
@@ -51,17 +51,23 @@ pub struct Line {
     pub b: Vec2i,
 }
 
-/// Triangle in pixel coordinates with non-zero area.
+/// Triangle in pixel coordinates with non-zero area, carrying a depth per
+/// vertex.
 pub struct Triangle {
     a: Vec2i,
     b: Vec2i,
     c: Vec2i,
-    pub depth: Vec3f,
+    /// Depths of a, b, c, in that order.
+    depth: Vec3f,
 }
 
 impl Triangle {
-    /// Returns `None` when the vertices are collinear (zero area).
-    pub fn new(a: Vec2i, b: Vec2i, c: Vec2i, depth: Vec3f) -> Option<Self> {
+    /// Takes screen-space vertices: x and y are rounded to the nearest pixel,
+    /// z is kept as depth. Returns `None` when the rounded vertices are
+    /// collinear (zero area).
+    pub fn new(vertices: [Vec3f; 3]) -> Option<Self> {
+        let [a, b, c] = vertices.map(Vec3f::to_vec2i);
+        let depth = Vec3f::new(vertices[0].z, vertices[1].z, vertices[2].z);
         let triangle = Self { a, b, c, depth };
 
         if triangle.doubled_signed_area() == 0 {
@@ -69,6 +75,15 @@ impl Triangle {
         } else {
             Some(triangle)
         }
+    }
+
+    /// Every pixel the triangle covers, with its interpolated depth.
+    pub fn fragments(&self) -> impl Iterator<Item = (Vec2i, f32)> + '_ {
+        self.bounding_box()
+            .points()
+            .map(|p| (p, self.barycentric(p)))
+            .filter(|(_, weights)| weights.is_inside())
+            .map(|(p, weights)| (p, weights.interpolate(self.depth)))
     }
 
     /// The three sides, each running in the triangle's winding order:
@@ -93,7 +108,7 @@ impl Triangle {
         (self.b - self.a).cross(self.c - self.a)
     }
 
-    /// /// Position of `p` in barycentric coordinates relative to this triangle: the
+    /// Position of `p` in barycentric coordinates relative to this triangle: the
     /// weights (α, β, γ) with p = αa + βb + γc.
     pub fn barycentric(&self, p: Vec2i) -> Barycentric {
         let abc = self.doubled_signed_area() as f32;

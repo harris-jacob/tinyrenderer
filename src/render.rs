@@ -33,7 +33,7 @@ impl Cull {
 }
 
 /// Projects every face of `model` onto `buffer` and draws the ones `cull`
-/// keeps in `style`, with a random colour per face. 
+/// keeps in `style`, with a random colour per face.
 pub fn render(model: &Model, buffer: &mut Framebuffer, style: Style, cull: Cull) {
     let viewport = buffer.viewport();
 

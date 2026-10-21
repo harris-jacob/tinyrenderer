@@ -50,7 +50,7 @@ impl Framebuffer {
             width,
             height,
             pixels: vec![0; width * height],
-            zbuffer: vec![f32::MIN; width * height],
+            zbuffer: vec![f32::NEG_INFINITY; width * height],
         }
     }
 
@@ -82,20 +82,22 @@ impl Framebuffer {
         }
     }
 
-    // Conditional set only if z depth is greater than what's already
-    // in this pixel position in the z buffer.
+    /// Writes `c` only if `z` is closer than the depth already stored at this
+    /// pixel. Larger z is closer, since the viewer looks down −z.
     pub fn set_if_closer(&mut self, x: i32, y: i32, z: f32, c: Color) {
-        if let Some(i) = self.index(x, y) {
-            if z > self.zbuffer[i] {
-                self.zbuffer[i] = z;
-                self.set(x, y, c);
-            }
+        if let Some(i) = self.index(x, y)
+            && z > self.zbuffer[i]
+        {
+            self.zbuffer[i] = z;
+            self.pixels[i] = c.to_packed();
         }
     }
 
+    /// Fills every pixel with `c` and resets every depth to infinitely far.
     #[allow(dead_code)]
     pub fn clear(&mut self, c: Color) {
         self.pixels.fill(c.to_packed());
+        self.zbuffer.fill(f32::NEG_INFINITY);
     }
 
     /// The raw pixel buffer, top row first — ready to hand to minifb.
