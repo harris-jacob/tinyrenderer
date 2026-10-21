@@ -5,7 +5,9 @@ A software renderer in Rust, built from scratch by following Dmitry Sokolov's
 graphics API involved: every pixel is computed on the CPU and shown in a window
 with [minifb](https://crates.io/crates/minifb).
 
-![The African head model rendered with a random colour per face](docs/render.png)
+<p align="center">
+  <img src="docs/render.png" alt="The African head model rendered with a random colour per face">
+</p>
 
 ## Progress
 
