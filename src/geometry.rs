@@ -75,6 +75,12 @@ impl Triangle {
         ]
     }
 
+    /// Counter-clockwise on screen, the winding of faces that point towards
+    /// the viewer.
+    pub fn is_front_facing(&self) -> bool {
+        self.doubled_signed_area() > 0
+    }
+
     /// Twice the signed area, exact. Positive when a → b → c runs
     /// counter-clockwise (y up). Never zero.
     pub fn doubled_signed_area(&self) -> i32 {

@@ -8,7 +8,7 @@ mod window;
 
 use framebuffer::Framebuffer;
 use model::Model;
-use render::{Style, render};
+use render::{Cull, Style, render};
 
 const HEAD_MODEL: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/obj/african_head.obj");
 const WIDTH: usize = 600;
@@ -23,8 +23,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     let mut buffer = Framebuffer::new(WIDTH, HEIGHT);
-    render(&model, &mut buffer, Style::Filled);
-    render(&model, &mut buffer, Style::Wireframe);
+    render(&model, &mut buffer, Style::Filled, Cull::Back);
+    // render(&model, &mut buffer, Style::Wireframe, Cull::None);
 
     window::show(&buffer, "tinyrenderer")?;
     Ok(())
