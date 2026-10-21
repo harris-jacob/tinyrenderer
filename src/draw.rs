@@ -7,10 +7,8 @@ pub trait Drawable {
 
 impl Drawable for Triangle {
     fn draw(&self, buffer: &mut Framebuffer, color: Color) {
-        self.bounding_box()
-            .points()
-            .filter(|&p| self.barycentric(p).is_inside())
-            .for_each(|p| buffer.set(p.x, p.y, color));
+        self.fragments()
+            .for_each(|(p, depth)| buffer.set_if_closer(p.x, p.y, depth, color));
     }
 }
 
